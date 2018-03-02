@@ -1,0 +1,6 @@
+model_checkpoint_path: "train_weights_10000_iter.ckpt"
+all_model_checkpoint_paths: "train_weights_6000_iter.ckpt"
+all_model_checkpoint_paths: "train_weights_7000_iter.ckpt"
+all_model_checkpoint_paths: "train_weights_8000_iter.ckpt"
+all_model_checkpoint_paths: "train_weights_9000_iter.ckpt"
+all_model_checkpoint_paths: "train_weights_10000_iter.ckpt"
