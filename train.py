@@ -22,8 +22,10 @@ class SolverWrapper(object):
 
     #每次训练过程中我们要随机抽取一些数据
     #返回随机抽取的x,labels
-    def sample_data(self):
-        index=np.random.choice(self.data_number,self.sample_batch,replace=False)
+    def sample_data(self,sample_batch):
+        # assert type(self.sample_batch)==tf.int32,"it's type wrong"
+
+        index=np.random.choice(self.data_number,sample_batch,replace=False)
 
         x=self.data[index,:,:]
         y=self.labels[index]
@@ -48,22 +50,27 @@ class SolverWrapper(object):
         labels=self.net.labels #sample_batch*1
         scores=self.net.get_output('cls_pro')#sample_batch*10
         class_num=self.net.class_num
+        sample_batch=self.sample_batch
+        # sample_batch=tf.cast(sample_batch,tf.int32)
         labels=tf.expand_dims(labels,1)
         labels=tf.cast(labels,tf.int32)
-        indices=tf.expand_dims(tf.range(0,self.sample_batch,1),1)
+        indices=tf.expand_dims(tf.range(0,sample_batch,1),1)
         concated=tf.concat([indices,labels],1)
         onehot_labels=tf.sparse_to_dense(concated,
-                                        tf.stack([self.sample_batch,class_num]),1.0,0.0)
+                                        tf.stack([sample_batch,class_num]),1.0,0.0)
         #-y_ilog(prob)
 
         cross_entropy_loss=tf.reduce_mean(tf.reduce_sum(-tf.log(scores)*onehot_labels,
                                             1))
-
-        train_step=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_loss)
+        global_step = tf.Variable(0)
+        #--------------学习速率的设置（学习速率呈指数下降）---------------------
+        learning_rate = tf.train.exponential_decay(1e-2,global_step,\
+        decay_steps=self.data_number/self.sample_batch,decay_rate=0.98,staircase=True)
+        train_step=tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy_loss)
 
         self.sess.run(tf.global_variables_initializer())
         for i in range(self.max_iter):
-            sample_x,sample_y=self.sample_data()
+            sample_x,sample_y=self.sample_data(sample_batch)
             feed_dict={self.net.x:sample_x,self.net.labels:sample_y}
             _,loss=self.sess.run((train_step,cross_entropy_loss),feed_dict=feed_dict)
 

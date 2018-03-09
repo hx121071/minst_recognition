@@ -4,9 +4,9 @@ import tensorflow as tf
 
 class LeNet_train(Network):
     def __init__(self,keep_pro,class_num):
-        self.x=tf.placeholder(tf.float32,shape=[64,28,28,1])
+        self.x=tf.placeholder(tf.float32,shape=[None,28,28,1])
         self.input=[]
-        self.labels=tf.placeholder(tf.float32,shape=[64])
+        self.labels=tf.placeholder(tf.float32,shape=[None])
         self.layers=dict({'x':self.x})
         self.keep_pro=keep_pro
         self.class_num=class_num
@@ -25,3 +25,5 @@ class LeNet_train(Network):
              .dropout(keep_pro=self.keep_pro,name='drop6')
              .fc(10,name='fc7',relu=False)
              .softmax(name='cls_pro'))
+if __name__=='__main__':
+    x=LeNet_train(0.5,10)

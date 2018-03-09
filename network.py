@@ -65,10 +65,15 @@ class Network(object):
 
     @layer
     def reshape(self,input,name):
-        print(input)
-        print(input.shape[0])
-        output=tf.reshape(input,[input.shape[0],-1],name=name)
-        print(output.get_shape())
+        print(type(input))
+
+        shape=input.get_shape()
+
+        # d=shape[1]*shape[2]*shape[3]
+        # print(tf.cast(d,np.int32))
+        output=tf.reshape(input,[-1,tf.cast(d,tf.int32)],name=name)
+        # output=tf.reshape(input,[shape[0],-1],name=name)
+
         return output
 
     @layer
